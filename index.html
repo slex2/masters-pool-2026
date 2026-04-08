@@ -344,6 +344,8 @@ async function fetchTeams() {
   if (!res) throw new Error("Could not fetch Google Sheet");
 
   const rows = parseCSV(await res.text());
+  console.log("CSV rows:", rows.slice(0, 3)); // shows first 3 rows
+  console.log("Headers detected:", Object.keys(rows[0] || {}));
   const teamMap = {};
 
   rows.forEach(row => {
