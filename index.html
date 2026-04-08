@@ -237,7 +237,7 @@
   <div class="header-rule"></div>
   <div class="year-badge">Augusta, Georgia · 2026</div>
   <h1>The <span>Masters</span><br>Pool</h1>
-  <div class="subtitle"></div>
+  <div class="subtitle">Eight Teams · Five Golfers · One Champion</div>
   <div class="header-rule" style="margin-top:28px; margin-bottom:0;"></div>
 </header>
 
@@ -261,21 +261,18 @@
   </div>
 </div>
 
-<footer>Auto-refreshes every 3 minutes &nbsp;·&nbsp; Payouts estimated by position &nbsp;·&nbsp;</footer>
+<footer>Auto-refreshes every 3 minutes &nbsp;·&nbsp; Payouts estimated by position &nbsp;·&nbsp; Built for the boys</footer>
 
 <script>
 // ═══════════════════════════════════════════════════════════
 //  CONFIG — the only section you should need to touch
 // ═══════════════════════════════════════════════════════════
 
-// Published Google Sheet CSV URL
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQF4owF2LUbkDwKdrZSy1Ab4WKhvVURfkPVub31PfOsGvQOKt1kzVQN7f0ROz1gbFI7NVeKd467LiXg/pub?gid=0&single=true&output=csv";
 
-// Column headers in your sheet (lowercase, must match exactly)
-const COL_GOLFER = "Golfer";
-const COL_OWNER  = "Picked";
+const COL_GOLFER = "golfer";
+const COL_OWNER  = "picked";
 
-// Display name map — update right side values with team names when ready
 const NAME_MAP = {
   "Treazy":   "Treazy",
   "Lex":      "Lex",
@@ -313,9 +310,7 @@ const ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   if (lines.length < 2) return [];
-
   const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, "").toLowerCase());
-
   return lines.slice(1).map(line => {
     const cols = [];
     let cur = "", inQ = false;
@@ -334,7 +329,6 @@ function parseCSV(text) {
 // ═══════════════════════════════════════════════════════════
 //  Fetch teams from Google Sheet
 // ═══════════════════════════════════════════════════════════
-
 async function fetchTeams() {
   const urls = [
     SHEET_CSV_URL,
@@ -348,26 +342,21 @@ async function fetchTeams() {
     } catch(e) {}
   }
   if (!res) throw new Error("Could not fetch Google Sheet");
+
+  const rows = parseCSV(await res.text());
+  const teamMap = {};
+
+  rows.forEach(row => {
+    const golfer = row[COL_GOLFER];
+    const owner  = row[COL_OWNER];
+    if (!golfer || !owner) return;
+    const display = NAME_MAP[owner] || owner;
+    if (!teamMap[display]) teamMap[display] = [];
+    teamMap[display].push(golfer);
+  });
+
+  return Object.entries(teamMap).map(([name, golfers]) => ({ name, golfers }));
 }
-
-// async function fetchTeams() {
-//   const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
-//   if (!res.ok) throw new Error("Could not fetch Google Sheet");
-
-//   const rows = parseCSV(await res.text());
-//   const teamMap = {};
-
-//   rows.forEach(row => {
-//     const golfer = row[COL_GOLFER];
-//     const owner  = row[COL_OWNER];
-//     if (!golfer || !owner) return;                      // skip unpicked golfers
-//     const display = NAME_MAP[owner] || owner;           // map to display name
-//     if (!teamMap[display]) teamMap[display] = [];
-//     teamMap[display].push(golfer);
-//   });
-
-//   return Object.entries(teamMap).map(([name, golfers]) => ({ name, golfers }));
-// }
 
 // ═══════════════════════════════════════════════════════════
 //  Fetch ESPN leaderboard
@@ -376,9 +365,9 @@ const fmt$ = n => "$" + n.toLocaleString();
 
 function normalizeScore(s) { if (!s || s==="E") return 0; const n=parseInt(s); return isNaN(n)?0:n; }
 function scoreClass(n)     { return n<0?"score-under":n>0?"score-over":"score-even"; }
+
 function formatThru(raw) {
   if (!raw) return "—";
-  // If it looks like an ISO timestamp, convert it
   if (raw.includes("T")) {
     const d = new Date(raw);
     return d.toLocaleString("en-US", {
@@ -386,9 +375,10 @@ function formatThru(raw) {
       hour: "numeric", minute: "2-digit", hour12: true
     });
   }
-  return raw; // hole number or "F" — return as-is
+  return raw;
 }
-function formatScore(raw)  {
+
+function formatScore(raw) {
   if (!raw||raw==="E") return "E";
   const n=parseInt(raw); if(isNaN(n)) return raw;
   return n===0?"E":n>0?"+"+n:String(n);
@@ -419,8 +409,8 @@ async function fetchLeaderboard() {
     let posNum = null;
     if (!isMC) { const m=String(posRaw).replace(/[^0-9]/g,""); if(m) posNum=parseInt(m); }
 
-    const isTie    = String(posRaw).startsWith("T");
-    const tieSize  = isTie ? competitors.filter(x=>(x.status?.position?.displayName||x.status?.displayValue||"")===posRaw).length : 1;
+    const isTie   = String(posRaw).startsWith("T");
+    const tieSize = isTie ? competitors.filter(x=>(x.status?.position?.displayName||x.status?.displayValue||"")===posRaw).length : 1;
 
     let payout = 0;
     if (posNum) {
@@ -447,7 +437,7 @@ async function fetchLeaderboard() {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  Owner matching (exact + last-name fallback)
+//  Owner matching
 // ═══════════════════════════════════════════════════════════
 function buildOwnerMap(teams) {
   const map = {};
@@ -558,7 +548,7 @@ function setStatus(live, text, round) {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  Main — fetch sheet + leaderboard in parallel
+//  Main
 // ═══════════════════════════════════════════════════════════
 async function refresh() {
   try {
