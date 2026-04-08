@@ -368,17 +368,19 @@ const fmt$ = n => "$" + n.toLocaleString();
 function normalizeScore(s) { if (!s || s==="E") return 0; const n=parseInt(s); return isNaN(n)?0:n; }
 function scoreClass(n)     { return n<0?"score-under":n>0?"score-over":"score-even"; }
 
+
 function formatThru(raw) {
   if (!raw) return "—";
   if (raw.includes("T")) {
     const d = new Date(raw);
     return d.toLocaleString("en-US", {
-      month: "long", day: "numeric", year: "numeric",
+      month: "short", day: "numeric",
       hour: "numeric", minute: "2-digit", hour12: true
     });
   }
   return raw;
 }
+
 
 function formatScore(raw) {
   if (!raw||raw==="E") return "E";
