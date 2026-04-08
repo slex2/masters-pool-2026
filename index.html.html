@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Masters Pool 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Code+Pro:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a3a2a;
+    --green-mid: #2d5a3d;
+    --green-light: #3d7a52;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --cream: #f5f0e8;
+    --cream-dark: #e8dfc8;
+    --white: #fdfaf4;
+    --cut-red: #8b1a1a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--green);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(61,122,82,0.4) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(26,58,42,0.8) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,255,255,0.012) 60px, rgba(255,255,255,0.012) 61px);
+    min-height: 100vh;
+    font-family: 'Libre Baskerville', Georgia, serif;
+    color: var(--cream);
+  }
+
+  header { text-align: center; padding: 52px 24px 36px; }
+
+  .header-rule {
+    width: 180px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0 auto 28px;
+  }
+
+  .year-badge {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px; letter-spacing: 6px;
+    color: var(--gold); text-transform: uppercase;
+    margin-bottom: 12px; opacity: 0.85;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 900; color: var(--white);
+    line-height: 1.0; letter-spacing: -1px;
+  }
+  h1 span { color: var(--gold); }
+
+  .subtitle {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px; letter-spacing: 4px;
+    color: var(--cream-dark); opacity: 0.7;
+    margin-top: 14px; text-transform: uppercase;
+  }
+
+  .status-bar {
+    display: flex; align-items: center; justify-content: center;
+    gap: 24px; padding: 10px 24px; margin: 0 auto 40px;
+    max-width: 900px; flex-wrap: wrap;
+    border-top: 1px solid rgba(201,168,76,0.2);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+
+  .status-item {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px; letter-spacing: 2px;
+    color: var(--gold); opacity: 0.8; text-transform: uppercase;
+  }
+
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--gold); display: inline-block;
+    margin-right: 8px; animation: pulse 2s ease-in-out infinite;
+  }
+  .status-dot.offline { background: #666; animation: none; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px 60px; }
+
+  .section-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px; letter-spacing: 5px;
+    color: var(--gold); text-transform: uppercase;
+    margin-bottom: 16px; opacity: 0.7;
+  }
+
+  .standings-grid { display: grid; gap: 12px; margin-bottom: 52px; }
+
+  .team-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 4px; padding: 20px 24px;
+    display: grid; grid-template-columns: 48px 1fr auto;
+    align-items: center; gap: 16px;
+    transition: background 0.2s, border-color 0.2s;
+    animation: fadeUp 0.4s ease both;
+  }
+  .team-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(201,168,76,0.35); }
+  .team-card.rank-1 { background: rgba(201,168,76,0.08); border-color: rgba(201,168,76,0.5); }
+  .team-card.rank-2 { background: rgba(201,168,76,0.04); border-color: rgba(201,168,76,0.3); }
+  .team-card.rank-3 { background: rgba(201,168,76,0.02); border-color: rgba(201,168,76,0.2); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+  .rank-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 700;
+    color: var(--gold); opacity: 0.5;
+    text-align: center; line-height: 1;
+  }
+  .team-card.rank-1 .rank-num { opacity: 1; font-size: 32px; }
+
+  .team-info { min-width: 0; }
+
+  .team-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 700;
+    color: var(--white); margin-bottom: 6px;
+  }
+
+  .team-golfers { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .golfer-chip {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px; letter-spacing: 0.5px;
+    color: var(--cream-dark); opacity: 0.7;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 2px; padding: 2px 7px; white-space: nowrap;
+  }
+  .golfer-chip.made-cut   { color: var(--gold-light); opacity: 0.9; border-color: rgba(201,168,76,0.3); background: rgba(201,168,76,0.08); }
+  .golfer-chip.missed-cut { opacity: 0.35; text-decoration: line-through; }
+  .golfer-chip.leader     { color: var(--gold); border-color: rgba(201,168,76,0.6); background: rgba(201,168,76,0.15); opacity: 1; }
+
+  .team-winnings { text-align: right; }
+
+  .winnings-amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 700;
+    color: var(--gold-light); white-space: nowrap;
+  }
+  .team-card.rank-1 .winnings-amount { font-size: 26px; color: var(--gold); }
+
+  .winnings-label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px; letter-spacing: 2px;
+    color: var(--cream-dark); opacity: 0.45;
+    text-transform: uppercase; margin-top: 2px;
+  }
+
+  .leaderboard-section { margin-bottom: 52px; }
+
+  .leaderboard-table { width: 100%; border-collapse: collapse; }
+  .leaderboard-table thead tr { border-bottom: 1px solid rgba(201,168,76,0.3); }
+  .leaderboard-table th {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px; letter-spacing: 3px;
+    color: var(--gold); opacity: 0.6;
+    text-transform: uppercase; padding: 8px 12px;
+    text-align: left; font-weight: 400;
+  }
+  .leaderboard-table th.num { text-align: right; }
+  .leaderboard-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+  .leaderboard-table tbody tr:hover        { background: rgba(255,255,255,0.04); }
+  .leaderboard-table tbody tr.pooled       { background: rgba(201,168,76,0.05); }
+  .leaderboard-table tbody tr.pooled:hover { background: rgba(201,168,76,0.09); }
+  .leaderboard-table tbody tr.missed-cut-row { opacity: 0.4; }
+  .leaderboard-table td { padding: 10px 12px; font-size: 13px; color: var(--cream); }
+  .leaderboard-table td.num { text-align: right; font-family: 'Source Code Pro', monospace; font-size: 12px; }
+
+  .pos-cell  { font-family: 'Source Code Pro', monospace; font-size: 12px; color: var(--gold); opacity: 0.7; width: 48px; }
+  .name-cell { font-weight: 700; }
+  .score-cell { font-family: 'Source Code Pro', monospace; font-weight: 600; }
+  .score-under { color: #5fbd7a; }
+  .score-even  { color: var(--cream-dark); }
+  .score-over  { color: #d47a7a; }
+
+  .owner-badge {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px; letter-spacing: 1px;
+    color: var(--gold);
+    background: rgba(201,168,76,0.12);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 2px; padding: 1px 6px; white-space: nowrap;
+  }
+
+  .payout-cell { font-family: 'Source Code Pro', monospace; font-size: 12px; color: var(--gold-light); text-align: right; }
+
+  .cut-row td {
+    padding: 6px 12px;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 9px; letter-spacing: 3px;
+    color: var(--cut-red); text-transform: uppercase;
+    text-align: center;
+    border-top: 1px dashed rgba(139,26,26,0.5);
+    border-bottom: 1px dashed rgba(139,26,26,0.5);
+    background: rgba(139,26,26,0.05);
+  }
+
+  .message-box {
+    text-align: center; padding: 60px 24px;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 13px; color: var(--cream-dark);
+    opacity: 0.6; letter-spacing: 1px;
+  }
+
+  footer {
+    text-align: center; padding: 24px;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 10px; letter-spacing: 2px;
+    color: var(--cream-dark); opacity: 0.3;
+    text-transform: uppercase;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  @media (max-width: 600px) {
+    .team-card { grid-template-columns: 36px 1fr auto; gap: 10px; padding: 14px 16px; }
+    .winnings-amount { font-size: 16px; }
+    .team-card.rank-1 .winnings-amount { font-size: 18px; }
+    .leaderboard-table th, .leaderboard-table td { padding: 8px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-rule"></div>
+  <div class="year-badge">Augusta, Georgia · 2026</div>
+  <h1>The <span>Masters</span><br>Pool</h1>
+  <div class="subtitle">Eight Teams · Five Golfers · One Champion</div>
+  <div class="header-rule" style="margin-top:28px; margin-bottom:0;"></div>
+</header>
+
+<div class="status-bar">
+  <div class="status-item"><span class="status-dot" id="statusDot"></span><span id="statusText">Connecting...</span></div>
+  <div class="status-item" id="roundStatus">—</div>
+  <div class="status-item" id="lastUpdated">—</div>
+</div>
+
+<div class="container">
+  <div class="section-label">Team Standings</div>
+  <div class="standings-grid" id="standingsGrid">
+    <div class="message-box">Loading standings...</div>
+  </div>
+
+  <div class="leaderboard-section">
+    <div class="section-label">Masters Leaderboard</div>
+    <div id="leaderboardWrap">
+      <div class="message-box">Loading leaderboard...</div>
+    </div>
+  </div>
+</div>
+
+<footer>Auto-refreshes every 3 minutes &nbsp;·&nbsp; Payouts estimated by position &nbsp;·&nbsp; Built for the boys</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  CONFIG — the only section you should need to touch
+// ═══════════════════════════════════════════════════════════
+
+// Published Google Sheet CSV URL
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQF4owF2LUbkDwKdrZSy1Ab4WKhvVURfkPVub31PfOsGvQOKt1kzVQN7f0ROz1gbFI7NVeKd467LiXg/pub?gid=0&single=true&output=csv";
+
+// Column headers in your sheet (lowercase, must match exactly)
+const COL_GOLFER = "golfer";
+const COL_OWNER  = "selected by";
+
+// Display name map — update right side values with team names when ready
+const NAME_MAP = {
+  "Treazy":   "Treazy",
+  "Lex":      "Lex",
+  "Hess":     "Hess",
+  "Bleacher": "Bleacher",
+  "Kane":     "Kane",
+  "Joyce":    "Joyce",
+  "Shea":     "Shea",
+  "Kells":    "Kells",
+};
+
+const REFRESH_MS = 3 * 60 * 1000;
+
+// ═══════════════════════════════════════════════════════════
+//  2025 Masters payout schedule
+// ═══════════════════════════════════════════════════════════
+const PAYOUTS = {
+   1:3600000,  2:2160000,  3:1360000,  4:960000,   5:800000,
+   6:720000,   7:670000,   8:620000,   9:580000,  10:540000,
+  11:500000,  12:460000,  13:430000,  14:400000,  15:375000,
+  16:350000,  17:325000,  18:305000,  19:285000,  20:265000,
+  21:245000,  22:225000,  23:210000,  24:195000,  25:182000,
+  26:169000,  27:158000,  28:149000,  29:140000,  30:133000,
+  31:126000,  32:119000,  33:113000,  34:107000,  35:101000,
+  36:97000,   37:93000,   38:89000,   39:85000,   40:81500,
+  41:78000,   42:75000,   43:72000,   44:69000,   45:66000,
+  46:63000,   47:60000,   48:57500,   49:55000,   50:52500,
+};
+
+const ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?league=pga";
+
+// ═══════════════════════════════════════════════════════════
+//  CSV parser
+// ═══════════════════════════════════════════════════════════
+function parseCSV(text) {
+  const lines = text.trim().split("\n");
+  if (lines.length < 2) return [];
+
+  const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, "").toLowerCase());
+
+  return lines.slice(1).map(line => {
+    const cols = [];
+    let cur = "", inQ = false;
+    for (const ch of line) {
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ""; }
+      else { cur += ch; }
+    }
+    cols.push(cur.trim());
+    const row = {};
+    headers.forEach((h, i) => { row[h] = (cols[i] || "").replace(/^"|"$/g, "").trim(); });
+    return row;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Fetch teams from Google Sheet
+// ═══════════════════════════════════════════════════════════
+async function fetchTeams() {
+  const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+  if (!res.ok) throw new Error("Could not fetch Google Sheet");
+
+  const rows = parseCSV(await res.text());
+  const teamMap = {};
+
+  rows.forEach(row => {
+    const golfer = row[COL_GOLFER];
+    const owner  = row[COL_OWNER];
+    if (!golfer || !owner) return;                      // skip unpicked golfers
+    const display = NAME_MAP[owner] || owner;           // map to display name
+    if (!teamMap[display]) teamMap[display] = [];
+    teamMap[display].push(golfer);
+  });
+
+  return Object.entries(teamMap).map(([name, golfers]) => ({ name, golfers }));
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Fetch ESPN leaderboard
+// ═══════════════════════════════════════════════════════════
+const fmt$ = n => "$" + n.toLocaleString();
+
+function normalizeScore(s) { if (!s || s==="E") return 0; const n=parseInt(s); return isNaN(n)?0:n; }
+function scoreClass(n)     { return n<0?"score-under":n>0?"score-over":"score-even"; }
+function formatScore(raw)  {
+  if (!raw||raw==="E") return "E";
+  const n=parseInt(raw); if(isNaN(n)) return raw;
+  return n===0?"E":n>0?"+"+n:String(n);
+}
+
+async function fetchLeaderboard() {
+  const urls = [ESPN_URL, "https://corsproxy.io/?" + encodeURIComponent(ESPN_URL)];
+  let data = null;
+  for (const url of urls) {
+    try { const r = await fetch(url,{cache:"no-store"}); if(r.ok){data=await r.json();break;} } catch(e){}
+  }
+  if (!data) throw new Error("Could not reach ESPN API");
+
+  const masters = (data.events||[]).find(e=>e.name?.toLowerCase().includes("master")) || data.events?.[0];
+  if (!masters) throw new Error("Masters not found");
+
+  const comp        = masters.competitions?.[0];
+  const competitors = comp?.competitors || [];
+  const status      = comp?.status?.type?.description || "—";
+  const period      = comp?.status?.period;
+
+  const rows = competitors.map(c => {
+    const posRaw = c.status?.position?.displayName || c.status?.displayValue || "—";
+    const score  = c.score?.displayValue || c.status?.score || "E";
+    const isMC   = (c.status?.type?.name||"").toUpperCase().includes("CUT")
+                || ["MC","WD"].includes((c.status?.displayValue||"").toUpperCase());
+
+    let posNum = null;
+    if (!isMC) { const m=String(posRaw).replace(/[^0-9]/g,""); if(m) posNum=parseInt(m); }
+
+    const isTie    = String(posRaw).startsWith("T");
+    const tieSize  = isTie ? competitors.filter(x=>(x.status?.position?.displayName||x.status?.displayValue||"")===posRaw).length : 1;
+
+    let payout = 0;
+    if (posNum) {
+      let t=0; for(let i=0;i<tieSize;i++) t+=PAYOUTS[posNum+i]||0;
+      payout = Math.round(t/tieSize);
+    }
+
+    return {
+      name: c.athlete?.displayName || "Unknown",
+      pos: posRaw, posNum, score,
+      scoreNum: normalizeScore(score),
+      isMC, payout,
+      thru: c.status?.thru || c.status?.displayValue || "",
+    };
+  });
+
+  rows.sort((a,b)=>{
+    if(a.isMC&&!b.isMC) return 1; if(!a.isMC&&b.isMC) return -1;
+    if(a.posNum&&b.posNum) return a.posNum-b.posNum;
+    return a.scoreNum-b.scoreNum;
+  });
+
+  return { rows, status, period, tournamentName: masters.name };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Owner matching (exact + last-name fallback)
+// ═══════════════════════════════════════════════════════════
+function buildOwnerMap(teams) {
+  const map = {};
+  teams.forEach(t => t.golfers.forEach(g => {
+    const k = g.toLowerCase().trim();
+    map[k] = t.name;
+    const last = k.split(" ").pop();
+    if (!map[last]) map[last] = t.name;
+  }));
+  return map;
+}
+
+function lookupOwner(name, map) {
+  if (!name) return null;
+  const k = name.toLowerCase().trim();
+  return map[k] || map[k.split(" ").pop()] || null;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Standings calculation
+// ═══════════════════════════════════════════════════════════
+function computeStandings(rows, teams) {
+  const ownerMap = buildOwnerMap(teams);
+  rows.forEach(r => { r.owner = lookupOwner(r.name, ownerMap); });
+
+  const w = {};
+  teams.forEach(t => w[t.name] = 0);
+  rows.forEach(r => { if(r.owner&&r.payout>0) w[r.owner]=(w[r.owner]||0)+r.payout; });
+
+  const standings = teams.map(t => ({...t, totalWinnings: w[t.name]||0}));
+  standings.sort((a,b)=>b.totalWinnings-a.totalWinnings);
+  return { standings, ownerMap };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Render
+// ═══════════════════════════════════════════════════════════
+function renderStandings(standings, rows) {
+  const grid = document.getElementById("standingsGrid");
+  grid.innerHTML = "";
+  standings.forEach((team, i) => {
+    const rank = i + 1;
+    const card = document.createElement("div");
+    card.className = `team-card rank-${rank<=3?rank:"other"}`;
+    card.style.animationDelay = (i*60)+"ms";
+
+    const chips = team.golfers.map(g => {
+      const row = rows.find(r =>
+        r.name.toLowerCase().trim()===g.toLowerCase().trim() ||
+        r.name.toLowerCase().includes(g.split(" ").pop().toLowerCase())
+      );
+      let cls="", label=g;
+      if (row) {
+        cls  = row.isMC?"missed-cut":row.posNum===1?"leader":"made-cut";
+        label= g + (row.pos&&row.pos!=="—"?` (${row.pos})`:"");
+      }
+      return `<span class="golfer-chip ${cls}">${label}</span>`;
+    }).join("");
+
+    card.innerHTML = `
+      <div class="rank-num">${rank}</div>
+      <div class="team-info">
+        <div class="team-name">${team.name}</div>
+        <div class="team-golfers">${chips}</div>
+      </div>
+      <div class="team-winnings">
+        <div class="winnings-amount">${fmt$(team.totalWinnings)}</div>
+        <div class="winnings-label">Earnings</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function renderLeaderboard(rows, ownerMap) {
+  let html = `<table class="leaderboard-table">
+    <thead><tr>
+      <th>Pos</th><th>Player</th>
+      <th class="num">Score</th><th class="num">Thru</th>
+      <th>Owner</th><th class="num">Est. Payout</th>
+    </tr></thead><tbody>`;
+
+  let cutInserted = false;
+  rows.forEach(r => {
+    if (!cutInserted && r.isMC) {
+      html += `<tr class="cut-row"><td colspan="6">— Missed Cut —</td></tr>`;
+      cutInserted = true;
+    }
+    html += `
+      <tr class="${r.isMC?"missed-cut-row":""} ${r.owner?"pooled":""}">
+        <td class="pos-cell">${r.pos}</td>
+        <td class="name-cell">${r.name}</td>
+        <td class="num score-cell ${scoreClass(r.scoreNum)}">${formatScore(r.score)}</td>
+        <td class="num">${r.thru||"—"}</td>
+        <td>${r.owner?`<span class="owner-badge">${r.owner}</span>`:""}</td>
+        <td class="payout-cell">${r.payout>0?fmt$(r.payout):"—"}</td>
+      </tr>`;
+  });
+
+  document.getElementById("leaderboardWrap").innerHTML = html + `</tbody></table>`;
+}
+
+function setStatus(live, text, round) {
+  document.getElementById("statusDot").className     = live?"status-dot":"status-dot offline";
+  document.getElementById("statusText").textContent  = text;
+  document.getElementById("roundStatus").textContent = round||"—";
+  document.getElementById("lastUpdated").textContent =
+    "Updated " + new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Main — fetch sheet + leaderboard in parallel
+// ═══════════════════════════════════════════════════════════
+async function refresh() {
+  try {
+    const [teams, {rows, status, period, tournamentName}] =
+      await Promise.all([fetchTeams(), fetchLeaderboard()]);
+
+    const {standings, ownerMap} = computeStandings(rows, teams);
+    renderStandings(standings, rows);
+    renderLeaderboard(rows, ownerMap);
+    setStatus(true, "Live · "+(tournamentName||"Masters 2026"), period?`Round ${period}`:status);
+  } catch(err) {
+    console.error(err);
+    setStatus(false, "Error fetching data — retrying", "—");
+    document.getElementById("standingsGrid").innerHTML =
+      `<div class="message-box">Could not load data.<br><small>${err.message}</small></div>`;
+  }
+}
+
+refresh();
+setInterval(refresh, REFRESH_MS);
+</script>
+</body>
+</html>
