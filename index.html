@@ -272,7 +272,7 @@
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQF4owF2LUbkDwKdrZSy1Ab4WKhvVURfkPVub31PfOsGvQOKt1kzVQN7f0ROz1gbFI7NVeKd467LiXg/pub?gid=0&single=true&output=csv";
 
 // Column headers in your sheet (lowercase, must match exactly)
-const COL_GOLFER = "golfer";
+const COL_GOLFER = "Golfer";
 const COL_OWNER  = "Picked";
 
 // Display name map — update right side values with team names when ready
@@ -334,24 +334,40 @@ function parseCSV(text) {
 // ═══════════════════════════════════════════════════════════
 //  Fetch teams from Google Sheet
 // ═══════════════════════════════════════════════════════════
+
 async function fetchTeams() {
-  const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
-  if (!res.ok) throw new Error("Could not fetch Google Sheet");
+  const urls = [
+    SHEET_CSV_URL,
+    "https://corsproxy.io/?" + encodeURIComponent(SHEET_CSV_URL)
+  ];
+  let res = null;
+  for (const url of urls) {
+    try {
+      const r = await fetch(url, { cache: "no-store" });
+      if (r.ok) { res = r; break; }
+    } catch(e) {}
+  }
+  if (!res) throw new Error("Could not fetch Google Sheet");
 
-  const rows = parseCSV(await res.text());
-  const teamMap = {};
 
-  rows.forEach(row => {
-    const golfer = row[COL_GOLFER];
-    const owner  = row[COL_OWNER];
-    if (!golfer || !owner) return;                      // skip unpicked golfers
-    const display = NAME_MAP[owner] || owner;           // map to display name
-    if (!teamMap[display]) teamMap[display] = [];
-    teamMap[display].push(golfer);
-  });
+// async function fetchTeams() {
+//   const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+//   if (!res.ok) throw new Error("Could not fetch Google Sheet");
 
-  return Object.entries(teamMap).map(([name, golfers]) => ({ name, golfers }));
-}
+//   const rows = parseCSV(await res.text());
+//   const teamMap = {};
+
+//   rows.forEach(row => {
+//     const golfer = row[COL_GOLFER];
+//     const owner  = row[COL_OWNER];
+//     if (!golfer || !owner) return;                      // skip unpicked golfers
+//     const display = NAME_MAP[owner] || owner;           // map to display name
+//     if (!teamMap[display]) teamMap[display] = [];
+//     teamMap[display].push(golfer);
+//   });
+
+//   return Object.entries(teamMap).map(([name, golfers]) => ({ name, golfers }));
+// }
 
 // ═══════════════════════════════════════════════════════════
 //  Fetch ESPN leaderboard
