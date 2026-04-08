@@ -360,6 +360,18 @@ const fmt$ = n => "$" + n.toLocaleString();
 
 function normalizeScore(s) { if (!s || s==="E") return 0; const n=parseInt(s); return isNaN(n)?0:n; }
 function scoreClass(n)     { return n<0?"score-under":n>0?"score-over":"score-even"; }
+function formatThru(raw) {
+  if (!raw) return "—";
+  // If it looks like an ISO timestamp, convert it
+  if (raw.includes("T")) {
+    const d = new Date(raw);
+    return d.toLocaleString("en-US", {
+      month: "long", day: "numeric", year: "numeric",
+      hour: "numeric", minute: "2-digit", hour12: true
+    });
+  }
+  return raw; // hole number or "F" — return as-is
+}
 function formatScore(raw)  {
   if (!raw||raw==="E") return "E";
   const n=parseInt(raw); if(isNaN(n)) return raw;
@@ -512,7 +524,7 @@ function renderLeaderboard(rows, ownerMap) {
         <td class="pos-cell">${r.pos}</td>
         <td class="name-cell">${r.name}</td>
         <td class="num score-cell ${scoreClass(r.scoreNum)}">${formatScore(r.score)}</td>
-        <td class="num">${r.thru||"—"}</td>
+        <td class="num">${formatThru(r.thru)}</td>
         <td>${r.owner?`<span class="owner-badge">${r.owner}</span>`:""}</td>
         <td class="payout-cell">${r.payout>0?fmt$(r.payout):"—"}</td>
       </tr>`;
