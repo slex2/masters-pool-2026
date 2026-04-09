@@ -371,6 +371,7 @@ function scoreClass(n)     { return n<0?"score-under":n>0?"score-over":"score-ev
 
 function formatThru(raw) {
   if (!raw) return "—";
+  raw = String(raw)
   if (raw.includes("T")) {
     const d = new Date(raw);
     return d.toLocaleString("en-US", {
