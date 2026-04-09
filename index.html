@@ -432,10 +432,13 @@ async function fetchLeaderboard() {
     };
   });
 
-  rows.sort((a,b)=>{
-    if(a.isMC&&!b.isMC) return 1; if(!a.isMC&&b.isMC) return -1;
-    if(a.posNum&&b.posNum) return a.posNum-b.posNum;
-    return a.scoreNum-b.scoreNum;
+  rows.sort((a, b) => {
+    if (a.isMC && !b.isMC) return 1;
+    if (!a.isMC && b.isMC) return -1;
+    if (a.posNum && b.posNum) return a.posNum - b.posNum;
+    if (a.posNum && !b.posNum) return -1;
+    if (!a.posNum && b.posNum) return 1;
+    return a.scoreNum - b.scoreNum;
   });
 
   return { rows, status, period, tournamentName: masters.name };
