@@ -456,8 +456,6 @@ function buildOwnerMap(teams) {
   teams.forEach(t => t.golfers.forEach(g => {
     const k = g.toLowerCase().trim();
     map[k] = t.name;
-    const last = k.split(" ").pop();
-    if (!map[last]) map[last] = t.name;
   }));
   return map;
 }
@@ -497,14 +495,12 @@ function renderStandings(standings, rows) {
     card.style.animationDelay = (i*60)+"ms";
 
     const chips = team.golfers.map(g => {
-      const row = rows.find(r =>
-        r.name.toLowerCase().trim()===g.toLowerCase().trim() ||
-        r.name.toLowerCase().includes(g.split(" ").pop().toLowerCase())
-      );
+      const row = rows.find(r => r.name.toLowerCase().trim() === g.toLowerCase().trim());
       let cls="", label=g;
       if (row) {
-        cls  = row.isMC?"missed-cut":row.posNum===1?"leader":"made-cut";
-        label= g + (row.pos&&row.pos!=="—"?` (${row.pos})`:"");
+        const thruNum = parseInt(row.thru) || 0;
+        cls   = row.isMC ? "missed-cut" : row.posNum === 1 ? "leader" : "made-cut";
+        label = g + (row.pos && row.pos !== "—" && row.pos !== "-" && thruNum > 0 ? ` (${row.pos})` : "");
       }
       return `<span class="golfer-chip ${cls}">${label}</span>`;
     }).join("");
