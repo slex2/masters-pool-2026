@@ -407,7 +407,11 @@ async function fetchLeaderboard() {
 
   const rows = competitors.map(c => {
     const posRaw = c.status?.position?.displayName || c.status?.displayValue || "—";
-    const score = c.score?.displayValue || c.statistics?.[0]?.displayValue || c.status?.score || c.status?.displayValue || "E";
+    const scoreStat = c.statistics?.find(s => s.name === "scoreToPar");
+    const scoreVal  = scoreStat?.value;
+    const score     = (scoreVal !== undefined && scoreVal !== 0) 
+      ? (scoreVal > 0 ? "+" + scoreVal : String(scoreVal))
+      : (c.status?.type?.state === "in" ? "E" : "-");
     const isMC   = (c.status?.type?.name||"").toUpperCase().includes("CUT")
                 || ["MC","WD"].includes((c.status?.displayValue||"").toUpperCase());
 
